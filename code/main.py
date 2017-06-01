@@ -9,18 +9,17 @@ import scan_rate
 
 global database_type
 #Option：mysql pgsql remote
-database_type = 'mysql'
+database_type = 'remote'
 
 
 def scan_rate_analysis():
-  tableName = """process"""
+  tableName = """t_logs"""
   nextProcessName = """polish-qc"""
   curProcessName = """d-cnc2"""
   processFlow = ['2d-bc-le', 's-extr', '2d-bc-qc',
                 'd-cnc2', 'polish-qc', 'd-cnc7', 'cnc7-qc', 'cnc7-pkg', 'sb-qc', 'a-cbn', 'a-glo', 'ano-qc', 'ano-pkg', 'd-cnc9', 'a-thk', 'cnc10-qc', 'cnc10-pkg', 'printing-qc', 'a-flt', 'a-xy', 'a-ldg', 'aim', 'fqc', 'fatp-lbl', 'si', 'fg-pkg']
 
   scan_rate.calcProcessScanRate(tableName, processFlow)
-
 
 
 def main():

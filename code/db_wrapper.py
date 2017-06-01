@@ -12,38 +12,18 @@ global conn
 #External Function
 def connectDB(type):
   if(type == 'mysql'):
-    #Connect mysql local database
-    db_host='localhost'
-    db_port=3306
-    db_user='root'
-    db_passwd='root'
-    db_name='factory'
-    connect_mysql(db_host,db_port,db_user,db_passwd,db_name)
+    connect_mysql()
   elif(type == 'pgsql'):
-    db_host="localhost"
-    db_port="5432"
-    db_user="postgres"
-    db_passwd="root000"
-    db_name="postgres"
-    connect_pgsql(db_host,db_port,db_user,db_passwd,db_name)
+    connect_pgsql()
   elif(type == 'remote'):
-    db_host="clgodb.cloud.md.apple.com"
-    db_port="3097"
-    db_user="4c5ac9464f6743390f2de66e0b37e37c"
-    db_passwd="9e02418f0f4d12eb30e7e10d5b310a71"
-    db_name="62e66db0c9fe88cb7c150abe4f250a5a"
-    connect_pgsql(db_host,db_port,db_user,db_passwd,db_name)
+    connect_remote()
   else:
     print("No matched database type!!!")
     return
 
 def closeDB(type):
-  if(type == 'mysql'):
-    close_mysql()
-  elif(type == 'pgsql'):
-    close_pgsql()
-  elif(type == 'remote'):
-    close_pgsql()
+  if(type == 'mysql') or (type == 'pgsql') or (type == 'remote'):
+    close_database()
   else:
     return
 
@@ -54,22 +34,22 @@ def exeDB(sql):
 
 
 #Internal Function
-def connect_mysql(hostname,port,user,password,dbname):
-  print("Connecting mysql database.")
+def connect_mysql():
+  print("Connecting local mysql database.")
   global conn
-  conn = pymysql.connect(host=hostname, port=port, user=user, passwd=password, db=dbname)
+  conn = pymysql.connect(host='localhost', port=3306, user='root', passwd='root', db='factory')
 
-def close_mysql():
-  print("Closing mysql database.")
+def connect_pgsql():
+  print("Connecting local pgsql database.")
   global conn
-  conn.close()
-
-def connect_pgsql(hostname,port,user,password,dbname):
-  print("Connecting pgsql database.")
+  conn = pg.connect(database="postgres", user="postgres", password="root000", host="localhost", port="5432")
+ 
+def connect_remote():
+  print("Connecting remote database.")
   global conn
-  conn = pg.connect(hostname,port,user,password,dbname)
+  conn = pg.connect(database="62e66db0c9fe88cb7c150abe4f250a5a", user="4c5ac9464f6743390f2de66e0b37e37c", password="9e02418f0f4d12eb30e7e10d5b310a71", host="clgodb.cloud.md.apple.com", port="3097")
 
-def close_pgsql():
-  print("Closing pgsql database.")
+def close_database():
+  print("Closing database.")
   global conn
   conn.close()
