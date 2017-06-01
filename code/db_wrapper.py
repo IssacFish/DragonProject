@@ -26,6 +26,13 @@ def connectDB(type):
     db_passwd="root000"
     db_name="postgres"
     connect_pgsql(db_host,db_port,db_user,db_passwd,db_name)
+  elif(type == 'remote'):
+    db_host="clgodb.cloud.md.apple.com"
+    db_port="3097"
+    db_user="4c5ac9464f6743390f2de66e0b37e37c"
+    db_passwd="9e02418f0f4d12eb30e7e10d5b310a71"
+    db_name="62e66db0c9fe88cb7c150abe4f250a5a"
+    connect_pgsql(db_host,db_port,db_user,db_passwd,db_name)
   else:
     print("No matched database type!!!")
     return
@@ -34,6 +41,8 @@ def closeDB(type):
   if(type == 'mysql'):
     close_mysql()
   elif(type == 'pgsql'):
+    close_pgsql()
+  elif(type == 'remote'):
     close_pgsql()
   else:
     return
@@ -64,6 +73,3 @@ def close_pgsql():
   print("Closing pgsql database.")
   global conn
   conn.close()
-
-
-

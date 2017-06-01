@@ -8,7 +8,7 @@ import db_wrapper
 import scan_rate
 
 global database_type
-#Option：mysql pgsql
+#Option：mysql pgsql remote
 database_type = 'mysql'
 
 
