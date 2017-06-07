@@ -5,10 +5,13 @@
 import pandas as pd
 import db_wrapper
 import chart_generator
+import config
 
 # External Function
-
-
+# tableName: String
+# processFlow: ['...','...','...',...]
+# date: String, yyyy-mm-dd
+# output: table, bar chart and overview work flow
 def calcProcessScanRate(tableName, processFlow, date):
     scanRateDataFrame = pd.DataFrame(
         columns=['station', 'scanningRate'])
@@ -21,9 +24,22 @@ def calcProcessScanRate(tableName, processFlow, date):
         print(processFlow[index])
     scanRateDataFrame.at[len(processFlow) - 1, 'scanningRate'] = float(100)
     print(scanRateDataFrame)
-    print("Draw scanning rate bar graph")
-    chart_generator.generateTop10LowestBarChart(
-        scanRateDataFrame, 99, 'scanningRate')
+    return scanRateDataFrame
+
+# External function
+# draw top 10 bar chart from lowest to highest
+# inputData: DataFrame
+# dataType: enum{'scanningRate', 'frakRate'}
+def generateBarChart(inputData):
+    print("Draw scanning rate bar chart")
+    orderedInputData = inputData.sort_values(by='scanningRate', ascending=True)
+    print(orderedInputData)
+    chart_generator.generateBarChart(orderedInputData, config.scanningRateThreshold, 'scanningRate')
+
+# External function
+# generate the overview flow chart
+def generateFlowChart(tableName, startDate, endDate):
+    chart_generator.generateFlowChart(tableName, startDate, endDate, 'ALL', 'ALL', 'overview')
 
 
 # Internal Function

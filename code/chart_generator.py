@@ -8,32 +8,31 @@ import pandas as pd
 from graphviz import Digraph
 
 # External function
-# draw top 10 bar chart from lowest to highest
+# generate bar chart with first 10 data and threshold line
 # inputData: DataFrame
-# threshold: int
-# dataType: enum{'scanningRate'}
-def generateTop10LowestBarChart(inputData, threshold, dataType):
-    orderedInput = inputData.sort_values(by=dataType, ascending=True)
-    print(orderedInput)
-    if (len(orderedInput) > 10):
-        orderedInput = orderedInput[0:10]
-    print(orderedInput)
-    plt.axis([-1, len(orderedInput), 0, 100])
-    plt.bar(range(len(orderedInput)), orderedInput[
-            dataType], tick_label=orderedInput['station'])
+# threshold: int, should be configured in config.py
+# dataType: enum{'scanningRate', 'frakRate'}
+def generateBarChart(inputData, threshold, dataType):
+    if (len(inputData) > 10):
+        inputData = inputData[0:10]
+    print(inputData)
+    plt.axis([-1, len(inputData), 0, 100])
+    plt.bar(range(len(inputData)), inputData[
+            dataType], tick_label=inputData['station'])
     add_xy_labels(dataType)
     plt.hlines(threshold, -1, 10, colors='r', linestyles='solid')
-    plt.text(len(orderedInput) + 0.2, threshold -
+    plt.text(len(inputData) + 0.2, threshold -
              1, 'threshold: ' + str(threshold))
-    plt.show()
 
 # External function
-# generate flow chart
+# generate flow chart. when generate overview flow chart, ignore the points whose rate is less than 0.05
 # tableName: String, the table you want to fetch the data
 # startDate: String, format yyyy-mm-dd
 # endDate: String, format yyyy-mm-dd
+# fromList: [...,...] or 'ALL', the valid list for from_process
+# toList: [...,...] or 'ALL', the valide list for to_process
 # fileName: String, the file used to save the flow chart picture, should end with ".gv"
-def generateFlowChart(tableName, startDate, endDate, FileName):
+def generateFlowChart(tableName, startDate, endDate, fromList, toList, FileName):
     result = get_flow_chart_data(tableName, startDate, endDate)
     mColor = {
         "pass": "#1db70d",
@@ -52,7 +51,7 @@ def generateFlowChart(tableName, startDate, endDate, FileName):
     for i,d in result.iterrows():
         A = d[0]
         B = d[2]
-        if (A is not None):
+        if (A is not None and (fromList is 'ALL' or A in fromList) and (toList is 'ALL' or B in toList)):
             aLabel = d[0] + " " + "%s" % d[4]
             bLabel = d[2] + " " + "%s" % d[4]
             eLabel = d[1] + " " + "%s" % d[3] + " " + "{:.1%}".format(d[5])
@@ -60,7 +59,7 @@ def generateFlowChart(tableName, startDate, endDate, FileName):
             fSize="8"
             if d[6]==1:
                 fSize="16"        
-            if d[5]>0.05:
+            if d[5]>0.05 or not FileName=='overview':
                 dot.node(A, aLabel)
                 dot.node(B, bLabel)
                 dot.edge(A, B, label=eLabel, color=eColor, fontcolor=eColor, fontsize=fSize)
@@ -72,6 +71,7 @@ def generateFlowChart(tableName, startDate, endDate, FileName):
 def add_xy_labels(dataType):
     yLabels = {
         'scanningRate': 'Scanning Rate',
+        'frakRate': 'Frak Rate',
     }
     plt.ylabel(yLabels.get(dataType, dataType))
     plt.xlabel('Station Name')
