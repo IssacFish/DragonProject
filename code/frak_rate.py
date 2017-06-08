@@ -27,7 +27,7 @@ def generateBarChart(inputData):
     chart_generator.generateBarChart(orderedInputData, config.frakRateThreshold, 'frakRate')
 
 # External function
-# generate the overview flow chart
+# generate the flow chart for every process that have 'frak' vent
 def generateFlowChart(inputData, tableName, startDate, endDate):
     result = inputData[inputData.frakRate > config.frakRateThreshold]
     chart_generator.generateFlowChart(tableName, startDate, endDate, result['station'].tolist(), 'ALL', 'frakRate')

@@ -4,3 +4,4 @@
 
 scanningRateThreshold = 99
 frakRateThreshold = 0.5
+unnormalScrapRateThreshold = 0
