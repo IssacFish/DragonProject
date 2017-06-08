@@ -28,6 +28,7 @@ def closeDB(type):
     return
 
 def exeDB(sql):
+  #print(sql)
   global conn
   result=pd.read_sql(sql,conn)
   return result
@@ -43,7 +44,7 @@ def connect_pgsql():
   print("Connecting local pgsql database.")
   global conn
   conn = pg.connect(database="postgres", user="postgres", password="root000", host="localhost", port="5432")
- 
+
 def connect_remote():
   print("Connecting remote database.")
   global conn

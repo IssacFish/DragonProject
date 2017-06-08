@@ -6,14 +6,20 @@ import os
 import sys
 import db_wrapper
 import scan_rate
+import process
 
 global database_type
 #Option：mysql pgsql remote
-database_type = 'remote'
+database_type = 'mysql'
 
+
+def process_analysis():
+  tableName = """process"""
+  process.calcProcessStation(tableName)
 
 def scan_rate_analysis():
-  tableName = """t_logs"""
+  #tableName = """t_logs"""
+  tableName = """process"""
   nextProcessName = """polish-qc"""
   curProcessName = """d-cnc2"""
   processFlow = ['2d-bc-le', 's-extr', '2d-bc-qc',
@@ -29,7 +35,9 @@ def main():
   db_wrapper.connectDB(database_type)
 
   #Data Analysis
-  scan_rate_analysis();
+ # scan_rate_analysis()
+  process_analysis()
+
 
   #Close database
   db_wrapper.closeDB(database_type)
