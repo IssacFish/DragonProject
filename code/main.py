@@ -17,6 +17,7 @@ def process_analysis():
   tableName = """process"""
   process.calcProcessStation(tableName)
 
+
 def scan_rate_analysis():
   #tableName = """t_logs"""
   tableName = """process"""
@@ -36,7 +37,7 @@ def main():
 
   #Data Analysis
  # scan_rate_analysis()
-  process_analysis()
+  process_flow = process_analysis()
 
 
   #Close database
