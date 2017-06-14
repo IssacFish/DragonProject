@@ -13,14 +13,15 @@ import datetime as dt
 global unnormalReworkMatrix
 
 # External function
-# calculate the ratio that a part that is reworked today and has more than 1 times of rework within two weeks
+# calculate the ratio that a part reworked today has more than 1 times of rework before
 def calcReworkCount(tableName, date):
-    endDate = dt.datetime.strptime(date, '%Y-%m-%d')
-    startDate = endDate - dt.timedelta(days = 14)
-    startDateStr = startDate.strftime('%Y-%m-%d')
+    # endDate = dt.datetime.strptime(date, '%Y-%m-%d')
+    # startDate = endDate - dt.timedelta(days = 14)
+    # startDateStr = startDate.strftime('%Y-%m-%d')
     sqlTotalReworkCount = """select count(*) from (select distinct part_id from """ + tableName + """ where event='rework' and date='""" + date + """') as table2"""
     totalReworkCount = db_wrapper.exeDB(sqlTotalReworkCount)
-    sqlRepeatReworkRecord = """select part_id from """ + tableName + """ where event='rework' and date>='""" + startDateStr + """' and part_id in (select distinct part_id from """ + tableName + """ where date='""" + date + """' and event='rework') group by part_id having count(part_id)>1;"""
+    # sqlRepeatReworkRecord = """select part_id from """ + tableName + """ where event='rework' and date>='""" + startDateStr + """' and part_id in (select distinct part_id from """ + tableName + """ where date='""" + date + """' and event='rework') group by part_id having count(part_id)>1;"""
+    sqlRepeatReworkRecord = """select part_id from """ + tableName + """ where event='rework' and part_id in (select distinct part_id from """ + tableName + """ where date='""" + date + """' and event='rework') group by part_id having count(part_id)>1;"""
     repeatReworkRecord = db_wrapper.exeDB(sqlRepeatReworkRecord)
     if (totalReworkCount.iat[0,0]==0):
         return 0
