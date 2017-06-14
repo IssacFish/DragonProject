@@ -6,11 +6,12 @@ import os
 import sys
 import db_wrapper
 import scan_rate
-import process
+#import process
+import rework_rate
 
 global database_type
 #Option：mysql pgsql remote
-database_type = 'mysql'
+database_type = 'pgsql'
 
 
 def process_analysis():
@@ -25,8 +26,13 @@ def scan_rate_analysis():
   curProcessName = """d-cnc2"""
   processFlow = ['2d-bc-le', 's-extr', '2d-bc-qc',
                 'd-cnc2', 'polish-qc', 'd-cnc7', 'cnc7-qc', 'cnc7-pkg', 'sb-qc', 'a-cbn', 'a-glo', 'ano-qc', 'ano-pkg', 'd-cnc9', 'a-thk', 'cnc10-qc', 'cnc10-pkg', 'printing-qc', 'a-flt', 'a-xy', 'a-ldg', 'aim', 'fqc', 'fatp-lbl', 'si', 'fg-pkg']
+  date = '2016-12-08'
+  endDate = '2016-12-09'
 
-  scan_rate.calcProcessScanRate(tableName, processFlow)
+  #scan_rate.calcProcessScanRate(tableName, processFlow)
+  #rework_rate.calcUnnormalReworkRate(tableName, date)
+  #rework_rate.generateFlowChart(tableName, date, endDate)
+  rework_rate.calcReworkCount(tableName, date)
 
 
 def main():
@@ -36,8 +42,8 @@ def main():
   db_wrapper.connectDB(database_type)
 
   #Data Analysis
- # scan_rate_analysis()
-  process_flow = process_analysis()
+  scan_rate_analysis()
+  #process_flow = process_analysis()
 
 
   #Close database
