@@ -6,17 +6,20 @@ import os
 import sys
 import db_wrapper
 import scan_rate
-#import process
+import chart_generator
 import rework_rate
 
 global database_type
 #Option：mysql pgsql remote
-database_type = 'pgsql'
+database_type = 'remote'
 
 
 def process_analysis():
-  tableName = """process"""
-  process.calcProcessStation(tableName)
+  tableName="t_logs"
+  startDate="2016-10-27"
+  endDate="2016-10-28"
+  data=chart_generator.get_flow_chart_data(tableName, startDate, endDate)
+  return process.findMainProcess(data)
 
 
 def scan_rate_analysis():
@@ -42,8 +45,8 @@ def main():
   db_wrapper.connectDB(database_type)
 
   #Data Analysis
-  scan_rate_analysis()
-  #process_flow = process_analysis()
+  #scan_rate_analysis()
+  process_flow = process_analysis()
 
 
   #Close database

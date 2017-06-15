@@ -15,6 +15,51 @@ global pid_frame
 pid_frame = pd.DataFrame(columns=['pid', 'pcount','ptime'])
 
 #External Function
+def findMainProcess(flowChartData):
+    #Find first station
+    df=flowChartData[flowChartData['from_process'].isnull()]
+    df=df.sort_values(by='rate',ascending=False)
+    first_station = df.at[0,'to_process']
+    print(first_station)
+
+    #Find last station
+    df = flowChartData[flowChartData['row_number'] == 1]
+    #Clear data
+    df.drop(df[df['total'] < 500].index,inplace=True)
+    df.drop(df[df['rate'] < 0.5].index,inplace=True)
+    df.drop(df[df['from_process'].isnull()].index,inplace=True)
+
+    to_process = df['to_process'].values
+
+    for i in range(0,len(to_process)):
+        target = to_process[i]
+        if df[df['from_process'] == target].empty:
+            final_station = target
+            
+    print(final_station)
+    stationlist = pd.Series(final_station)
+       
+    index = 1
+    Flag = True
+    while (Flag):
+        df = flowChartData[flowChartData['to_process'] == final_station]
+        pre_station = df[df['row_number'] == 1]['from_process'].values[0]
+        #Add to final list
+        temp = pd.Series(pre_station)
+        stationlist = stationlist.append(temp,ignore_index=True)
+        #Step next
+        final_station = pre_station
+        if (pre_station == first_station):
+            Flag = False
+            print("Stop searching!") 
+
+    process_count=len(stationlist)
+    print("Main Process Count:",process_count)
+    stationlist = stationlist.sort_index(ascending=False)
+    main_process=pd.DataFrame(stationlist.values,columns=['station'])
+    print(main_process)
+    return main_process
+
 def calcProcessStation(table_name):
     select_pid(table_name)
     full_cluster()
