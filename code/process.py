@@ -43,15 +43,20 @@ def findMainProcess(flowChartData):
     Flag = True
     while (Flag):
         df = flowChartData[flowChartData['to_process'] == final_station]
-        pre_station = df[df['row_number'] == 1]['from_process'].values[0]
-        #Add to final list
-        temp = pd.Series(pre_station)
-        stationlist = stationlist.append(temp,ignore_index=True)
-        #Step next
-        final_station = pre_station
-        if (pre_station == first_station):
+        if df.empty:
+            print("There is no products flowing into",final_station)
             Flag = False
-            print("Stop searching!") 
+            print("Stop searching!")
+        else:
+            pre_station = df[df['row_number'] == 1]['from_process'].values[0]
+            #Add to final list
+            temp = pd.Series(pre_station)
+            stationlist = stationlist.append(temp,ignore_index=True)
+            #Step next
+            final_station = pre_station
+            if (pre_station == first_station):
+                Flag = False
+                print("Stop searching!") 
 
     process_count=len(stationlist)
     print("Main Process Count:",process_count)
