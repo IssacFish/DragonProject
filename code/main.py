@@ -11,9 +11,10 @@ import rework_rate
 import matplotlib.pyplot as plt
 import frak_rate
 import unnormal_scrap_rate
+import unnormal_finish_rate
 
 global database_type
-database_type = 'remote'
+database_type = 'pgsql'
 
 
 def process_analysis():
@@ -25,8 +26,8 @@ def process_analysis():
 
 
 def scan_rate_analysis():
-  tableName = """t_logs"""
-  #tableName = """process"""
+  #tableName = """t_logs"""
+  tableName = """process"""
   nextProcessName = """polish-qc"""
   curProcessName = """d-cnc2"""
   processFlow = ['2d-bc-le', 's-extr', '2d-bc-qc',
@@ -38,13 +39,14 @@ def scan_rate_analysis():
   #scanRate = scan_rate.calcProcessScanRate(tableName, processFlow, date)
   #frakRate = frak_rate.calcProcessFrakRate(tableName, processFlow, date)
   #unnormalScrapRate = unnormal_scrap_rate.calcProcessUnnormalScrapRate(tableName, processFlow, date)
-
   #scan_rate.generateBarChart(scanRate)
-  unnormalReworkRate = rework_rate.calcUnnormalReworkRate(tableName, date)
-  print('The unnormal rework rate is: %f'%unnormalReworkRate)
+  #unnormal_finish_rate.calcProcessUnnormalFinishRate(tableName, processFlow)
+  unnormal_scrap_rate.calcProcessUnnormalScrapRate(tableName, processFlow, '2016-10-26')
+  #unnormalReworkRate = rework_rate.calcUnnormalReworkRate(tableName, date)
+  #print('The unnormal rework rate is: %f'%unnormalReworkRate)
   #rework_rate.generateFlowChart(tableName, date, endDate)
-  reworkCount = rework_rate.calcReworkCount(tableName, date)
-  print('The rework count is: %f'%reworkCount)
+  #reworkCount = rework_rate.calcReworkCount(tableName, date)
+  #print('The rework count is: %f'%reworkCount)
 
 
 def main():

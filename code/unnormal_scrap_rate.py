@@ -15,10 +15,14 @@ global unnormalScrapMatrix
 def calcProcessUnnormalScrapRate(tableName, processFlow, date):
     global unnormalScrapMatrix
     unnormalScrapMatrix = {}
+    sqlScrapRecords = """select * from """ + tableName + \
+        """ where part_id in (select distinct part_id from """ + tableName + """ where event='scrap' and date='""" + date + """')"""
+    scrapRecords = db_wrapper.exeDB(sqlScrapRecords)
+    print(scrapRecords)
     unnormalScrapRateDataFrame = pd.DataFrame(columns=['station', 'unnormalScrapRate'])
     unnormalScrapRateDataFrame['station'] = processFlow
     for index in range(len(processFlow)):
-        curUnnormalScrapRate = calc_unnormal_scrap_rate(tableName, processFlow[index], date)
+        curUnnormalScrapRate = calc_unnormal_scrap_rate(scrapRecords, processFlow[index], date)
         unnormalScrapRateDataFrame.at[index, 'unnormalScrapRate'] = curUnnormalScrapRate * 100
     print(unnormalScrapRateDataFrame)
     return unnormalScrapRateDataFrame
@@ -51,21 +55,24 @@ def generateFlowChart(inputData, tableName, startDate, endDate):
     #chart_generator.generateFlowChart(tableName, startDate, endDate, result['station'].tolist(), 'ALL', 'frakRate')
 
 # Internal function
-def calc_unnormal_scrap_rate(tableName, curProcessName, date):
+def calc_unnormal_scrap_rate(inputData, curProcessName, date):
     global unnormalScrapMatrix
     normalScrapEvent = ['pack', 'scrap']
     unnormalScrapCount = 0
-    sqlScrapRecord = """select distinct part_id from """ + tableName + \
-        """ where process='""" + curProcessName + """' and event='scrap' and date='""" + date + """'"""
-    scrapRecord = db_wrapper.exeDB(sqlScrapRecord)
+    #sqlScrapRecord = """select distinct part_id from """ + tableName + \
+    #    """ where process='""" + curProcessName + """' and event='scrap' and date='""" + date + """'"""
+    #scrapRecord = db_wrapper.exeDB(sqlScrapRecord)
+    scrapRecord = inputData[(inputData.event == 'scrap') & (inputData.process == curProcessName)].reset_index()
+    scrapRecord = scrapRecord.drop_duplicates(['part_id'])
     scrapCount = len(scrapRecord)
     if(scrapCount==0):
         return 0
     unnormalScrapDataFrame = pd.DataFrame(columns=['part_id', 'from_process', 'process', 'event'])
     for partIndex in range(scrapCount):
         part_id = scrapRecord.at[partIndex,'part_id']
-        sqlCurPartRecords = """select part_id, event, process from """ + tableName + """ where part_id='""" + part_id + """' order by created"""
-        curPartRecords = db_wrapper.exeDB(sqlCurPartRecords)
+        #sqlCurPartRecords = """select part_id, event, process from """ + tableName + """ where part_id='""" + part_id + """' order by created"""
+        #curPartRecords = db_wrapper.exeDB(sqlCurPartRecords)
+        curPartRecords = inputData[inputData.part_id == part_id].sort_values(by='created').reset_index()
         isScrap = False
         for index in range(len(curPartRecords)):
             if(curPartRecords.at[index, 'process']==curProcessName and curPartRecords.at[index, 'event']=='scrap' ):

@@ -5,18 +5,22 @@
 import pymysql
 import psycopg2 as pg
 import pandas as pd
-
+from sqlalchemy import create_engine
 
 global conn
+global engine
 
 #External Function
 def connectDB(type):
+  global engine
   if(type == 'mysql'):
     connect_mysql()
   elif(type == 'pgsql'):
     connect_pgsql()
+    engine = create_engine('postgresql://postgres:root000@localhost:5432/postgres')
   elif(type == 'remote'):
     connect_remote()
+    engine = create_engine('postgresql://4c5ac9464f6743390f2de66e0b37e37c:9e02418f0f4d12eb30e7e10d5b310a71@clgodb.cloud.md.apple.com:3097/62e66db0c9fe88cb7c150abe4f250a5a')
   else:
     print("No matched database type!!!")
     return
@@ -32,6 +36,10 @@ def exeDB(sql):
   global conn
   result=pd.read_sql(sql,conn)
   return result
+
+def createTable(dataFrame, tableName):
+  global engine
+  dataFrame.to_sql(tableName, engine, if_exists='replace', index=False)
 
 
 #Internal Function
