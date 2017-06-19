@@ -76,4 +76,4 @@ def calc_unnormal_scrap_rate(tableName, curProcessName, date):
                 unnormalScrapDataFrame = unnormalScrapDataFrame.append(unnormalScrapRecord, ignore_index=True)
                 break
     unnormalScrapMatrix[curProcessName] = unnormalScrapDataFrame
-    return unnormalScrapCount / scrapCount
+    return (float)(unnormalScrapCount) / scrapCount

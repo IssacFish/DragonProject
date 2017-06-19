@@ -42,5 +42,5 @@ def calc_frak_rate(tableName, curProcessName, date):
     totalCount = db_wrapper.exeDB(sqlTotalCount)
     if (totalCount.iat[0,0]==0):
         return 0
-    frakRate = frackCount.iat[0, 0] / totalCount.iat[0, 0]
+    frakRate = (float)(frackCount.iat[0, 0]) / totalCount.iat[0, 0]
     return frakRate

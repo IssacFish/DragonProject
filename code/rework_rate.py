@@ -27,7 +27,8 @@ def calcReworkCount(tableName, date):
         return 0
     print("The parts that have more than 1 rework times are:")
     print(repeatReworkRecord)
-    return len(repeatReworkRecord)/totalReworkCount.iat[0,0]
+    print(totalReworkCount.iat[0,0])
+    return (float)(len(repeatReworkRecord))/totalReworkCount.iat[0,0]
 
 # External function
 def calcUnnormalReworkRate(tableName, date):
@@ -54,7 +55,7 @@ def calcUnnormalReworkRate(tableName, date):
                     isRework = False
     print("""The unnormal rework records are:""")
     print(unnormalReworkMatrix)
-    return len(unnormalReworkMatrix)/reworkRecordCount
+    return (float)(len(unnormalReworkMatrix))/reworkRecordCount
 
 # External function
 # generate the flow chart for every process that have unnormal rework event

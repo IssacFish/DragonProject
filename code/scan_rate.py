@@ -53,8 +53,10 @@ def calc(tableName, nextProcessName, curProcessName, date):
         """ where process='""" + nextProcessName + \
         """' and date='""" + date + """')) as table2;"""
     scanCount = db_wrapper.exeDB(sqlScanCount)
+    print(scanCount.iat[0,0])
+    print(totalCount.iat[0,0])
     if (totalCount.iat[0, 0] == 0):
         scanRate = 1
     else:
-        scanRate = scanCount.iat[0, 0] / totalCount.iat[0, 0]
+        scanRate = (float)(scanCount.iat[0, 0]) / totalCount.iat[0, 0]
     return scanRate

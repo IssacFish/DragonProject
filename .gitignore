@@ -1,4 +1,5 @@
 code/core.ipynb
+code/*.pyc
 code/temp/
 code/__pycache__/
 *.ipynb
