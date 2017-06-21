@@ -12,9 +12,10 @@ import matplotlib.pyplot as plt
 import frak_rate
 import unnormal_scrap_rate
 import unnormal_finish_rate
+import pandas as pd
 
 global database_type
-database_type = 'pgsql'
+database_type = 'remote'
 
 
 def process_analysis():
@@ -26,27 +27,34 @@ def process_analysis():
 
 
 def scan_rate_analysis():
-  #tableName = """t_logs"""
-  tableName = """process"""
+  tableName = """t_logs"""
+  #tableName = """process"""
   nextProcessName = """polish-qc"""
   curProcessName = """d-cnc2"""
   processFlow = ['2d-bc-le', 's-extr', '2d-bc-qc',
                 'd-cnc2', 'polish-qc', 'd-cnc7', 'cnc7-qc', 'cnc7-pkg', 'sb-qc', 'a-cbn', 'a-glo', 'ano-qc', 'ano-pkg', 'd-cnc9', 'a-thk', 'cnc10-qc', 'cnc10-pkg', 'printing-qc', 'a-flt', 'a-xy', 'a-ldg', 'aim', 'fqc', 'fatp-lbl', 'si', 'fg-pkg']
-  date = '2016-11-15'
+  date = '2016-11-17'
   endDate = '2016-11-16'
 
-  #plt.figure(1)
-  #scanRate = scan_rate.calcProcessScanRate(tableName, processFlow, date)
+  fig = plt.figure(1)
+  scanRateSubPlot = fig.add_subplot(2,2,1)
+  scanRate = scan_rate.calcProcessScanRate(tableName, processFlow, date)
   #frakRate = frak_rate.calcProcessFrakRate(tableName, processFlow, date)
   #unnormalScrapRate = unnormal_scrap_rate.calcProcessUnnormalScrapRate(tableName, processFlow, date)
-  #scan_rate.generateBarChart(scanRate)
-  #unnormal_finish_rate.calcProcessUnnormalFinishRate(tableName, processFlow)
-  unnormal_scrap_rate.calcProcessUnnormalScrapRate(tableName, processFlow, '2016-10-26')
-  #unnormalReworkRate = rework_rate.calcUnnormalReworkRate(tableName, date)
-  #print('The unnormal rework rate is: %f'%unnormalReworkRate)
-  #rework_rate.generateFlowChart(tableName, date, endDate)
-  #reworkCount = rework_rate.calcReworkCount(tableName, date)
-  #print('The rework count is: %f'%reworkCount)
+  #print(unnormal_scrap_rate.calcProcessAverageUnnormalScrapRate())
+  scan_rate.generateBarChart(scanRate, scanRateSubPlot)
+  #unnormalFinishRate = unnormal_finish_rate.calcProcessUnnormalFinishRate(tableName, processFlow, date)
+  #print(unnormal_finish_rate.calcProcessAverageUnnormalFinishRate())
+  #result = pd.merge(unnormalScrapRate, frakRate).merge(scanRate).merge(unnormalFinishRate)
+  #print(result)
+  #unnormal_scrap_rate.calcProcessUnnormalScrapRate(tableName, processFlow, '2016-10-26')
+  # unnormalReworkRate = rework_rate.calcUnnormalReworkRate(tableName, date)
+  # print('The unnormal rework rate is: %f'%unnormalReworkRate)
+  # #rework_rate.generateFlowChart(tableName, date, endDate)
+  # reworkCount = rework_rate.calcReworkCount(tableName, date)
+  # print('The rework count is: %f'%reworkCount)
+  #print(frak_rate.calcProcessFrakRate(tableName, date))
+  plt.show()
 
 
 def main():

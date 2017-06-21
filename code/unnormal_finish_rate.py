@@ -10,24 +10,37 @@ import pandas as pd
 # process unnormal finish steps
 # {stepName: DataFrame['part_id', 'process', 'event']}
 global unnormalFinishMatrix
+global totalFinishCount
+global totalUnnormalFinishCount
 
 # External function
-def calcProcessUnnormalFinishRate(tableName, processFlow):
+def calcProcessUnnormalFinishRate(tableName, processFlow, date):
     global unnormalFinishMatrix
+    global totalFinishCount
+    global totalUnnormalFinishCount
     unnormalFinishMatrix = {}
+    totalFinishCount = 0
+    totalUnnormalFinishCount = 0
     sqlFinishRecords = """select * from """ + tableName + \
-        """ where part_id in (select distinct part_id from """ + tableName + """ where event='finish')"""
+        """ where part_id in (select distinct part_id from """ + tableName + """ where event='finish' and date='""" + date + """')"""
     finishRecords = db_wrapper.exeDB(sqlFinishRecords)
     unnormalFinishRateDataFrame = pd.DataFrame(columns=['station', 'unnormalFinishRate'])
     unnormalFinishRateDataFrame['station'] = processFlow
     for index in range(len(processFlow)):
-        curUnnormalFinishRate = calc_unnormal_finish_rate(tableName, finishRecords, processFlow[index], processFlow)
+        curUnnormalFinishRate = calc_unnormal_finish_rate(tableName, finishRecords, processFlow[index], processFlow, date)
         unnormalFinishRateDataFrame.at[index, 'unnormalFinishRate'] = curUnnormalFinishRate * 100
+        print('station:', processFlow[index], 'rate:%f'%curUnnormalFinishRate)
     print('The process unnormal finish rate are:')
     print(unnormalFinishRateDataFrame)
     print('The process unnormal finish records are:')
     print(unnormalFinishMatrix)
     return unnormalFinishRateDataFrame
+
+# External function
+def calcProcessAverageUnnormalFinishRate():
+    global totalFinishCount
+    global totalUnnormalFinishCount
+    return (float)(totalUnnormalFinishCount) / totalFinishCount
 
 def analyzeOutliers():
     global unnormalFinishMatrix
@@ -45,13 +58,16 @@ def generateFlowChart(inputData, startDate, endDate):
         curStation = stationList[index]
         chart_generator.generateFlowChart(curStation, startDate, endDate, 'ALL', 'ALL', curStation+'_finish')
 
-def calc_unnormal_finish_rate(tableName, inputData, curProcessName, processFlow):
+def calc_unnormal_finish_rate(tableName, inputData, curProcessName, processFlow, date):
     global unnormalFinishMatrix
+    global totalFinishCount
+    global totalUnnormalFinishCount
     normalFinishEvent = ['pack', 'print', 'sorting', 'finish']
     unnormalFinishCount = 0
-    finishRecord = inputData[(inputData.event == 'finish') & (inputData.process == curProcessName)]
+    finishRecord = inputData[(inputData.event == 'finish') & (inputData.process == curProcessName) & (inputData.date == date)]
     finishRecord = finishRecord.drop_duplicates(['part_id'])
     finishCount = len(finishRecord)
+    totalFinishCount = totalFinishCount + finishCount
     if (finishCount==0):
         return 0
     unnormalFinishRecords = pd.DataFrame()
@@ -75,6 +91,7 @@ def calc_unnormal_finish_rate(tableName, inputData, curProcessName, processFlow)
                     unnormalFinishDataFrame = unnormalFinishDataFrame.append(unnormalFinishRecord, ignore_index=True)
                     break
     if not unnormalFinishRecords.empty:
-        db_wrapper.createTable(unnormalFinishRecords, curProcessName)
+        #db_wrapper.createTable(unnormalFinishRecords, curProcessName)
         unnormalFinishMatrix[curProcessName] = unnormalFinishDataFrame
-    return unnormalFinishCount / finishCount
+    totalUnnormalFinishCount = totalUnnormalFinishCount + unnormalFinishCount
+    return (float)(unnormalFinishCount) / finishCount

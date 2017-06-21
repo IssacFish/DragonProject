@@ -23,7 +23,7 @@ def calcReworkCount(tableName, date):
     # sqlRepeatReworkRecord = """select part_id from """ + tableName + """ where event='rework' and date>='""" + startDateStr + """' and part_id in (select distinct part_id from """ + tableName + """ where date='""" + date + """' and event='rework') group by part_id having count(part_id)>1;"""
     sqlRepeatReworkRecord = """select part_id from """ + tableName + """ where event='rework' and part_id in (select distinct part_id from """ + tableName + """ where date='""" + date + """' and event='rework') group by part_id having count(part_id)>1;"""
     repeatReworkRecord = db_wrapper.exeDB(sqlRepeatReworkRecord)
-    if (totalReworkCount.iat[0,0]==0):
+    if (totalReworkCount.iat[0,0]==0): 
         return 0
     print("The parts that have more than 1 rework times are:")
     print(repeatReworkRecord)
@@ -34,15 +34,18 @@ def calcReworkCount(tableName, date):
 def calcUnnormalReworkRate(tableName, date):
     global unnormalReworkMatrix
     unnormalReworkMatrix = pd.DataFrame(columns=['part_id', 'process', 'to_process', 'event'])
-    sqlReworkRecord = """select distinct part_id from """ + tableName + """ where event='rework' and date='""" + date + """'"""
-    reworkRecord = db_wrapper.exeDB(sqlReworkRecord)
+    sqlReworkTotalRecord = """select * from """ + tableName + """ where part_id in (select distinct part_id from """ + tableName + """ where event='rework' and date='""" + date + """')"""
+    reworkTotalRecord = db_wrapper.exeDB(sqlReworkTotalRecord)
+    reworkRecord = reworkTotalRecord[(reworkTotalRecord.event == 'rework') & (reworkTotalRecord.date == date)]
+    reworkRecord = reworkRecord.drop_duplicates(['part_id']).reset_index()
     reworkRecordCount = len(reworkRecord)
     if (reworkRecordCount == 0):
         return 0
     for partIndex in range(reworkRecordCount):
         part_id = reworkRecord.at[partIndex, 'part_id']
-        sqlCurReversedPartRecords = """select part_id, event, process from """ + tableName + """ where part_id='""" + part_id + """' order by created desc"""
-        curReversedPartRecords = db_wrapper.exeDB(sqlCurReversedPartRecords)
+        #sqlCurReversedPartRecords = """select part_id, event, process from """ + tableName + """ where part_id='""" + part_id + """' order by created desc"""
+        #curReversedPartRecords = db_wrapper.exeDB(sqlCurReversedPartRecords)
+        curReversedPartRecords = reworkTotalRecord[reworkTotalRecord.part_id == part_id].sort_values(by='created', ascending=False).reset_index()
         isRework = False
         for index in range(len(curReversedPartRecords)):
             if (curReversedPartRecords.at[index,'event']=='rework'):

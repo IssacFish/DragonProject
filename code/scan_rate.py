@@ -30,11 +30,13 @@ def calcProcessScanRate(tableName, processFlow, date):
 # draw top 10 bar chart from lowest to highest
 # inputData: DataFrame
 # dataType: enum{'scanningRate', 'frakRate'}
-def generateBarChart(inputData):
+# ax: the subplot you want to put the graph
+def generateBarChart(inputData, ax):
     print("Draw scanning rate bar chart")
-    orderedInputData = inputData.sort_values(by='scanningRate', ascending=True)
+    orderedInputData = inputData.sort_values(by='scanningRate', ascending=True).reset_index()
     print(orderedInputData)
-    chart_generator.generateBarChart(orderedInputData, config.scanningRateThreshold, 'scanningRate')
+    maxRange = orderedInputData.at[len(orderedInputData), 'scanningRate']
+    chart_generator.generateBarChart(orderedInputData, config.scanningRateThreshold, 'scanningRate', ax, maxRange)
 
 # External function
 # generate the overview flow chart

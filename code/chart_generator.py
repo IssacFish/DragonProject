@@ -12,16 +12,17 @@ from graphviz import Digraph
 # inputData: DataFrame
 # threshold: int, should be configured in config.py
 # dataType: enum{'scanningRate', 'frakRate'}
-def generateBarChart(inputData, threshold, dataType):
+# subplot: the plot position you want to put the graph
+# range: the max value in the graph
+def generateBarChart(inputData, threshold, dataType, subplot, maxRange):
     if (len(inputData) > 10):
         inputData = inputData[0:10]
-    print(inputData)
-    plt.axis([-1, len(inputData), 0, 100])
-    plt.bar(range(len(inputData)), inputData[
+    subplot.axis([-1, len(inputData), 0, maxRange])
+    subplot.bar(range(len(inputData)), inputData[
             dataType], tick_label=inputData['station'])
-    add_xy_labels(dataType)
-    plt.hlines(threshold, -1, 10, colors='r', linestyles='solid')
-    plt.text(len(inputData) + 0.2, threshold -
+    add_xy_labels(dataType, subplot)
+    subplot.hlines(threshold, -1, 10, colors='r', linestyles='solid')
+    subplot.text(len(inputData) + 0.2, threshold -
              1, 'threshold: ' + str(threshold))
 
 # External function
@@ -68,13 +69,13 @@ def generateFlowChart(tableName, startDate, endDate, fromList, toList, FileName)
 # Internal function
 
 # Set the x label and y label according to data type
-def add_xy_labels(dataType):
+def add_xy_labels(dataType, subplot):
     yLabels = {
         'scanningRate': 'Scanning Rate',
         'frakRate': 'Frak Rate',
     }
-    plt.ylabel(yLabels.get(dataType, dataType))
-    plt.xlabel('Station Name')
+    subplot.ylabel(yLabels.get(dataType, dataType))
+    subplot.xlabel('Station Name')
 
 # get the statistical table used by flow chart. The table structure is below:
 #   from_process from_event   to_process  qty  total      rate  row_number

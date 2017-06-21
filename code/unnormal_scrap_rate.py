@@ -10,15 +10,20 @@ import pandas as pd
 # process unnormal scrap steps
 # {stepName: DataFrame['part_id', 'process', 'event']}
 global unnormalScrapMatrix
+global totalUnnormalScrapCount
+global totalScrapCount
 
 #External function
 def calcProcessUnnormalScrapRate(tableName, processFlow, date):
     global unnormalScrapMatrix
+    global totalUnnormalScrapCount
+    global totalScrapCount
     unnormalScrapMatrix = {}
+    totalScrapCount = 0
+    totalUnnormalScrapCount = 0
     sqlScrapRecords = """select * from """ + tableName + \
         """ where part_id in (select distinct part_id from """ + tableName + """ where event='scrap' and date='""" + date + """')"""
     scrapRecords = db_wrapper.exeDB(sqlScrapRecords)
-    print(scrapRecords)
     unnormalScrapRateDataFrame = pd.DataFrame(columns=['station', 'unnormalScrapRate'])
     unnormalScrapRateDataFrame['station'] = processFlow
     for index in range(len(processFlow)):
@@ -26,6 +31,12 @@ def calcProcessUnnormalScrapRate(tableName, processFlow, date):
         unnormalScrapRateDataFrame.at[index, 'unnormalScrapRate'] = curUnnormalScrapRate * 100
     print(unnormalScrapRateDataFrame)
     return unnormalScrapRateDataFrame
+
+#External function
+def calcProcessAverageUnnormalScrapRate():
+    global totalUnnormalScrapCount
+    global totalScrapCount
+    return (float)(totalUnnormalScrapCount)/totalScrapCount
 
 # External function
 # draw top 10 bar chart from highest to lowest
@@ -57,14 +68,17 @@ def generateFlowChart(inputData, tableName, startDate, endDate):
 # Internal function
 def calc_unnormal_scrap_rate(inputData, curProcessName, date):
     global unnormalScrapMatrix
+    global totalUnnormalScrapCount
+    global totalScrapCount
     normalScrapEvent = ['pack', 'scrap']
     unnormalScrapCount = 0
     #sqlScrapRecord = """select distinct part_id from """ + tableName + \
     #    """ where process='""" + curProcessName + """' and event='scrap' and date='""" + date + """'"""
     #scrapRecord = db_wrapper.exeDB(sqlScrapRecord)
-    scrapRecord = inputData[(inputData.event == 'scrap') & (inputData.process == curProcessName)].reset_index()
-    scrapRecord = scrapRecord.drop_duplicates(['part_id'])
+    scrapRecord = inputData[(inputData.event == 'scrap') & (inputData.process == curProcessName) & (inputData.date == date)]
+    scrapRecord = scrapRecord.drop_duplicates(['part_id']).reset_index()
     scrapCount = len(scrapRecord)
+    totalScrapCount = totalScrapCount + scrapCount
     if(scrapCount==0):
         return 0
     unnormalScrapDataFrame = pd.DataFrame(columns=['part_id', 'from_process', 'process', 'event'])
@@ -82,5 +96,6 @@ def calc_unnormal_scrap_rate(inputData, curProcessName, date):
                 unnormalScrapRecord = {'part_id':part_id, 'from_process':curPartRecords.at[index-1, 'process'],'process':curPartRecords.at[index, 'process'], 'event':curPartRecords.at[index, 'event']}
                 unnormalScrapDataFrame = unnormalScrapDataFrame.append(unnormalScrapRecord, ignore_index=True)
                 break
+    totalUnnormalScrapCount = totalUnnormalScrapCount + unnormalScrapCount
     unnormalScrapMatrix[curProcessName] = unnormalScrapDataFrame
     return (float)(unnormalScrapCount) / scrapCount
