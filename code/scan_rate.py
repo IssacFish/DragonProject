@@ -35,7 +35,7 @@ def generateBarChart(inputData, ax):
     print("Draw scanning rate bar chart")
     orderedInputData = inputData.sort_values(by='scanningRate', ascending=True).reset_index()
     print(orderedInputData)
-    maxRange = orderedInputData.at[len(orderedInputData), 'scanningRate']
+    maxRange = orderedInputData.at[len(orderedInputData)-1, 'scanningRate']
     chart_generator.generateBarChart(orderedInputData, config.scanningRateThreshold, 'scanningRate', ax, maxRange)
 
 # External function

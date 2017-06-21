@@ -3,5 +3,6 @@
 # Description: customized config data
 
 scanningRateThreshold = 99
-frakRateThreshold = 0.5
+frakRateThreshold = 0
 unnormalScrapRateThreshold = 0
+unnormalFinishRateThreshold = 0

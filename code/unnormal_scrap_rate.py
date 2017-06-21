@@ -6,6 +6,7 @@ import db_wrapper
 import chart_generator
 import config
 import pandas as pd
+import math
 
 # process unnormal scrap steps
 # {stepName: DataFrame['part_id', 'process', 'event']}
@@ -41,11 +42,13 @@ def calcProcessAverageUnnormalScrapRate():
 # External function
 # draw top 10 bar chart from highest to lowest
 # inputData: DataFrame
-def generateBarChart(inputData):
+def generateBarChart(inputData, subplot):
     print("Draw unnormal scrap rate bar chart")
-    orderedInputData = inputData.sort_values(by='unnormalScrapRate', ascending=False)
+    orderedInputData = inputData.sort_values(by='unnormalScrapRate', ascending=False).reset_index()
+    maxRange = orderedInputData.at[0, 'unnormalScrapRate']
+    maxRange = math.ceil((float)(maxRange)/10)*10
     print(orderedInputData)
-    chart_generator.generateBarChart(orderedInputData, config.unnormalScrapRateThreshold, 'unnormalScrapRate')
+    chart_generator.generateBarChart(orderedInputData, config.unnormalScrapRateThreshold, 'unnormalScrapRate', subplot, maxRange)
 
 # External function
 # generate the flow chart for every process that have 'frak' vent
@@ -75,7 +78,11 @@ def calc_unnormal_scrap_rate(inputData, curProcessName, date):
     #sqlScrapRecord = """select distinct part_id from """ + tableName + \
     #    """ where process='""" + curProcessName + """' and event='scrap' and date='""" + date + """'"""
     #scrapRecord = db_wrapper.exeDB(sqlScrapRecord)
-    scrapRecord = inputData[(inputData.event == 'scrap') & (inputData.process == curProcessName) & (inputData.date == date)]
+    print(inputData)
+    scrapRecord = inputData[(inputData.event == 'scrap') & (inputData.process == curProcessName)]
+    if (curProcessName == 'cnc7-qc'):
+        print(date)
+        print(scrapRecord)
     scrapRecord = scrapRecord.drop_duplicates(['part_id']).reset_index()
     scrapCount = len(scrapRecord)
     totalScrapCount = totalScrapCount + scrapCount

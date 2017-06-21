@@ -6,6 +6,7 @@ import db_wrapper
 import chart_generator
 import config
 import pandas as pd
+import math
 
 # process unnormal finish steps
 # {stepName: DataFrame['part_id', 'process', 'event']}
@@ -42,6 +43,18 @@ def calcProcessAverageUnnormalFinishRate():
     global totalUnnormalFinishCount
     return (float)(totalUnnormalFinishCount) / totalFinishCount
 
+# External function
+# draw top 10 bar chart from highest to lowest
+# inputData: DataFrame
+def generateBarChart(inputData, subplot):
+    print("Draw unnormal finish rate bar chart")
+    orderedInputData = inputData.sort_values(by='unnormalFinishRate', ascending=False).reset_index()
+    maxRange = orderedInputData.at[0, 'unnormalFinishRate']
+    maxRange = math.ceil((float)(maxRange)/10)*10
+    print(orderedInputData)
+    chart_generator.generateBarChart(orderedInputData, config.unnormalFinishRateThreshold, 'unnormalFinishRate', subplot, maxRange)
+
+
 def analyzeOutliers():
     global unnormalFinishMatrix
     for curStation in unnormalFinishMatrix:
@@ -64,7 +77,7 @@ def calc_unnormal_finish_rate(tableName, inputData, curProcessName, processFlow,
     global totalUnnormalFinishCount
     normalFinishEvent = ['pack', 'print', 'sorting', 'finish']
     unnormalFinishCount = 0
-    finishRecord = inputData[(inputData.event == 'finish') & (inputData.process == curProcessName) & (inputData.date == date)]
+    finishRecord = inputData[(inputData.event == 'finish') & (inputData.process == curProcessName)]
     finishRecord = finishRecord.drop_duplicates(['part_id'])
     finishCount = len(finishRecord)
     totalFinishCount = totalFinishCount + finishCount

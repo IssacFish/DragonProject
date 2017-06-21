@@ -6,6 +6,7 @@ import pandas as pd
 import db_wrapper
 import chart_generator
 import config
+import math
 
 # External function
 def calcProcessFrakRate(tableName, processFlow, date):
@@ -19,17 +20,19 @@ def calcProcessFrakRate(tableName, processFlow, date):
 
 # External function
 # Calculate the process average frak rate
-def calcProcessFrakRate(tableName, date):
-    return calc_frak_rate(tableName, date)
+def calcProcessAverageFrakRate(tableName, date):
+    return calc_process_average_frak_rate(tableName, date)
 
 # External function
 # draw top 10 bar chart from highest to lowest
 # inputData: DataFrame
-def generateBarChart(inputData):
+def generateBarChart(inputData, ax):
     print("Draw frak rate bar chart")
-    orderedInputData = inputData.sort_values(by='frakRate', ascending=False)
+    orderedInputData = inputData.sort_values(by='frakRate', ascending=False).reset_index()
+    maxRange = orderedInputData.at[0, 'frakRate']
+    maxRange = math.ceil((float)(maxRange)/10)*10
     print(orderedInputData)
-    chart_generator.generateBarChart(orderedInputData, config.frakRateThreshold, 'frakRate')
+    chart_generator.generateBarChart(orderedInputData, config.frakRateThreshold, 'frakRate', ax, maxRange)
 
 # External function
 # generate the flow chart for every process that have 'frak' vent
@@ -53,7 +56,7 @@ def calc_frak_rate(tableName, curProcessName, date):
 
 # Internal function
 # calculate the process average frak rate
-def calc_frak_rate(tableName, date):
+def calc_process_average_frak_rate(tableName, date):
     sqlFrakCount = """select count(*) from (select part_id from """ + tableName + \
         """ where event='frak' and date='""" + date + """') as table2"""
     frackCount = db_wrapper.exeDB(sqlFrakCount)

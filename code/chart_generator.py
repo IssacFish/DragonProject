@@ -20,10 +20,12 @@ def generateBarChart(inputData, threshold, dataType, subplot, maxRange):
     subplot.axis([-1, len(inputData), 0, maxRange])
     subplot.bar(range(len(inputData)), inputData[
             dataType], tick_label=inputData['station'])
+    for tick in subplot.xaxis.get_major_ticks():
+        tick.label.set_rotation(30)
     add_xy_labels(dataType, subplot)
-    subplot.hlines(threshold, -1, 10, colors='r', linestyles='solid')
-    subplot.text(len(inputData) + 0.2, threshold -
-             1, 'threshold: ' + str(threshold))
+    if threshold is not 0:
+        subplot.hlines(threshold, -1, 10, colors='r', linestyles='solid')
+        #subplot.text(len(inputData) - 5, threshold + 5, 'threshold: ' + str(threshold))
 
 # External function
 # generate flow chart. when generate overview flow chart, ignore the points whose rate is less than 0.05
@@ -73,9 +75,11 @@ def add_xy_labels(dataType, subplot):
     yLabels = {
         'scanningRate': 'Scanning Rate',
         'frakRate': 'Frak Rate',
+        'unnormalScrapRate': 'Unnormal Scrap Rate',
+        'unnormalFinishRate': 'Unnormal Finish Rate'
     }
-    subplot.ylabel(yLabels.get(dataType, dataType))
-    subplot.xlabel('Station Name')
+    subplot.set_ylabel(yLabels.get(dataType, dataType))
+    subplot.set_xlabel('Station Name')
 
 # get the statistical table used by flow chart. The table structure is below:
 #   from_process from_event   to_process  qty  total      rate  row_number
